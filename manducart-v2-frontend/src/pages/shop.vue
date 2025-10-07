@@ -23,7 +23,7 @@
           <!-- Wishlist -->
           <button
             @click="addToWishlist(product)"
-            class="absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-red-500 hover:text-white transition"
+            class="absolute top-3 right-3 z-10 bg-white p-2 h-auto w-auto rounded-full shadow hover:bg-red-500 hover:text-white transition"
           >
             <i class="fa-regular fa-heart text-gray-700"></i>
           </button>
@@ -107,14 +107,4 @@ const addToCart = (product) => alert(`Added ${product.product_name} to cart`);
 const buyNow = (product) => alert(`Buying now: ${product.product_name}`);
 </script>
 
-<style scoped>
-@import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>
+<style scoped></style>
