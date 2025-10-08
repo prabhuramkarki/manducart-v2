@@ -7,7 +7,7 @@
      <Carousel/>
 
     <!-- Featured Section -->
-    <section>
+    <!-- <section>
       <h1 class="text-xl font-bold text-center my-6">Featured Products</h1>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-6">
         <div v-for="item in featured" :key="item.title" class="relative group">
@@ -24,7 +24,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- Product List -->
     <!-- <section>

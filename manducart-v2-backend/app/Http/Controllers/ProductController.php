@@ -58,12 +58,23 @@ class ProductController extends Controller
             'product_size' => 'required|string|max:10',
             'product_price' => 'required|numeric|min:0',
             'product_quantity' => 'required|integer|min:1',
+            'product_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
+
+
 
         DB::beginTransaction();
 
         try {
             $admin_id = 1; // Replace with Auth::id() if needed
+
+                    $imagePath = null;
+        if ($request->hasFile('product_image')) {
+            $file = $request->file('product_image');
+            $imageName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('products'), $imageName);
+            $imagePath = 'products/' . $imageName;
+        }
 
             // Create category
             $category = ProductCategories::create([
@@ -80,6 +91,7 @@ class ProductController extends Controller
                 'product_details' => $validated['product_details'],
                 'product_quantity' => $validated['product_quantity'],
                 'product_price' => $validated['product_price'],
+                'product_image' => $imagePath,
                 'created_by' => $admin_id,
                 'rating' => 0,
             ]);

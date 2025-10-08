@@ -29,12 +29,16 @@
                     <tr v-for="(product, index) in products" :key="product.product_id">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">
-                            <img :src="`/images/${product.product_image}`" alt="" class="w-12 h-12 rounded" />
+                            <img 
+                                :src="`http://127.0.0.1:8000/${product.product_image}`" 
+                                alt="Product Image" 
+                                class="w-12 h-12 rounded" 
+                            />
                         </td>
                         <td class="px-4 py-2">{{ product.product_name }}</td>
-                        <td class="px-4 py-2">{{ product.category_name }}</td>
-                        <td class="px-4 py-2">{{ product.product_color }}</td>
-                        <td class="px-4 py-2 uppercase">{{ product.product_size }}</td>
+                        <td class="px-4 py-2">{{ product.category.product_category }}</td>
+                        <td class="px-4 py-2">{{ product.category.product_color }}</td>
+                        <td class="px-4 py-2 uppercase">{{ product.category.product_size }}</td>
                         <td class="px-4 py-2 truncate max-w-xs">{{ product.product_details }}</td>
                         <td class="px-4 py-2">{{ product.product_quantity }}</td>
                         <td class="px-4 py-2">{{ product.product_price }}</td>
@@ -53,7 +57,6 @@
                 </tbody>
             </table>
         </div>
-        <!-- Pagination removed -->
     </div>
 </template>
 
@@ -68,7 +71,6 @@ const fetchProducts = async () => {
     try {
         const res = await axios.get('http://127.0.0.1:8000/api/products')
         products.value = res.data.data
-        console.log(products.value);
     } catch (error) {
         console.error('Failed to fetch products:', error)
     }
@@ -81,7 +83,6 @@ onMounted(() => {
 // Manage product actions
 const deleteProduct = (id) => {
     if (confirm('Are you sure you want to delete this product?')) {
-        // Call API to delete product
         axios.delete(`/products/${id}`).then(() => {
             fetchProducts()
             alert('Product deleted successfully')
@@ -90,7 +91,6 @@ const deleteProduct = (id) => {
 }
 
 const editProduct = (id) => {
-    // Redirect to edit page
     window.location.href = `/editproduct/${id}`
 }
 </script>

@@ -76,6 +76,16 @@
                 <input v-model.number="product.product_quantity" type="number" min="1"
                   class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300" required />
               </div>
+              <div>
+                <label class="block font-semibold mb-1">Product Image</label>
+                <input type="file" @change="handleImageUpload" accept="image/*"
+                  class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300" />
+              </div>
+
+              <div v-if="imagePreview" class="mt-3">
+                <img :src="imagePreview" alt="Preview" class="w-32 h-32 object-cover rounded-lg border" />
+              </div>
+
             </div>
           </div>
 
@@ -129,6 +139,16 @@ function validateForm() {
   }
   return true
 }
+const imageFile = ref(null)
+const imagePreview = ref("")
+
+function handleImageUpload(event) {
+  const file = event.target.files[0]
+  if (file) {
+    imageFile.value = file
+    imagePreview.value = URL.createObjectURL(file)
+  }
+}
 
 // Submit form
 async function handleSubmit() {
@@ -137,6 +157,10 @@ async function handleSubmit() {
   const formData = new FormData()
   for (const [key, value] of Object.entries(product.value)) {
     formData.append(key, value == null ? "" : String(value))
+    if (imageFile.value) {
+    formData.append("product_image", imageFile.value)
+}
+
   }
 
   try {

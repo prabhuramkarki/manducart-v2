@@ -12,31 +12,24 @@ return new class extends Migration
             $table->increments('product_id'); // Primary key
             $table->string('product_name', 250);
             $table->text('product_details');
-            $table->unsignedInteger('category_id'); // FK to product_categories
+            $table->unsignedInteger('category_id'); // Foreign Key to product_categories
 
-            // Product images
+            // Product image
             $table->string('product_image', 250)->nullable();
-            $table->string('product_image2', 250)->nullable();
-            $table->string('product_image3', 250)->nullable();
-            $table->string('product_image4', 250)->nullable();
 
             $table->integer('product_quantity');
-            $table->integer('product_price');
-            $table->integer('rating');
+            $table->decimal('product_price', 10, 2);
+            $table->integer('rating')->default(0);
+
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
-            $table->integer('status')->nullable();
+            $table->integer('status')->default(1);
 
+            // Timestamps
             $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->nullable();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            // Foreign key for created_by (admins)
-            // $table->foreign('created_by')
-            //     ->references('admin_id')
-            //     ->on('tbl_admins')
-            //     ->onUpdate('cascade');
-
-            // ✅ Correct foreign key for category_id
+            // Foreign key for category_id
             $table->foreign('category_id')
                 ->references('category_id')
                 ->on('product_categories')
