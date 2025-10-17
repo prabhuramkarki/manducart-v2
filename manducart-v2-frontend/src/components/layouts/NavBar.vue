@@ -1,7 +1,7 @@
 <template>
   <!-- Navbar -->
   <nav
-    class="w-full bg-gray-200/70 py-[30px] px-[5%] md:px-[10%] flex justify-between items-center h-[91px] z-30 font-montserrat relative"
+    class="w-full py-[30px] px-[5%] md:px-[10%] flex justify-between items-center h-[91px] z-30 font-montserrat relative"
   >
     <!-- Logo -->
     <div class="flex items-center space-x-2 select-none">

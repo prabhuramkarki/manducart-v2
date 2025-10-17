@@ -21,3 +21,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+
+
+Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin/dashboard', function (Request $request) {
+    return response()->json([
+        'message' => 'Welcome Admin!',
+        'user' => $request->user(),
+    ]);
+});

@@ -4,7 +4,7 @@
     <NavBar />
 
     <!-- Carousel -->
-     <Carousel/>
+     <!-- <Carousel/> -->
 
     <!-- Featured Section -->
     <!-- <section>
@@ -64,6 +64,8 @@
       </div>
     </section> -->
 
+    
+    <HeroSection/>
     <!-- Bottom Banner -->
     <section class="text-center my-12 bg-gray-100 py-10">
       <p class="text-lg">New Arrival's <span class="text-red-600 font-bold">50% Off</span></p>
@@ -85,6 +87,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import NavBar from '../components/layouts/NavBar.vue'
 import Carousel from '../components/Carousel.vue'
+import HeroSection from '../components/HeroSection.vue'
 
 const products = ref([])
 const featured = ref([

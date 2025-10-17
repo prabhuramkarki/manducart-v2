@@ -72,26 +72,38 @@ async function validateForm() {
     }
 
     try {
-        // Send login request to Laravel
         const response = await axios.post("http://127.0.0.1:8000/api/login", {
             email: email.value.trim(),
             password: password.value.trim(),
         });
 
-
-        // Store token from backend
+        // Store token
         const token = response.data.token;
         localStorage.setItem("token", token);
+        localStorage.setItem("role", response.data.user.role);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        // Optional: Set default header for future requests
+        // Optional: set default header for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Get user role
+        const role = response.data.user.role;
+
+
 
         toast.success("Login successful!", { autoClose: 2000 });
 
-        // Redirect to /products page
+        // Redirect based on role
         setTimeout(() => {
-            router.push("/products");
-        }, 1000); // slight delay for toast message
+            if (role === "admin") {
+                router.push("/admin");
+            } else if (role === "user") {
+                router.push("/");
+            } else {
+                router.push("/"); // default fallback
+            }
+        }, 1000);
+
     } catch (error) {
         if (error.response && error.response.data.message) {
             toast.error(error.response.data.message, { autoClose: 3000 });
