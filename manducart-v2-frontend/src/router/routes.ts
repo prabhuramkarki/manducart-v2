@@ -19,6 +19,7 @@ import Login from '../pages/auth/login.vue';
 import Signup from '../pages/auth/signup.vue';
 
 // admin routes 
+import AdminLayout from '../layouts/AdminLayout.vue';
 import AdminDashboard from '../pages/admin/dashboard.vue';
 
 //user login profile
@@ -41,14 +42,32 @@ const routes = [
 
   
 
+  // for testing
+  // { path: '/addproduct', component: AddProducts },
+  // { path: '/products', component: Products },
+  
   // admin routes paths
-  { path: '/addproduct', component: AddProducts },
-  { path: '/products', component: Products },
-
   {
     path: "/admin",
-    component: AdminDashboard,
+    component: AdminLayout,
     meta: { requiresAuth: true, adminOnly: true },
+    children: [
+      {
+        path: '',
+        name: 'AdminDashboard',
+        component: AdminDashboard,
+      },
+      {
+        path: 'addproduct',
+        name: 'AdminAddProduct',
+        component: AddProducts,
+      },
+      {
+        path: 'products',
+        name: 'AdminProducts',
+        component: Products,
+      },
+    ],
   },
 
   //auth routes

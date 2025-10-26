@@ -1,13 +1,5 @@
 <template>
     <div class="p-6">
-        <!-- Back Button -->
-        <button
-            @click="$router.back()"
-            class="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded flex items-center gap-2"
-        >
-            <i class="fa-solid fa-angle-left"></i> Back
-        </button>
-
         <!-- Products Table -->
         <div class="overflow-x-auto border rounded-lg shadow">
             <table class="min-w-full divide-y divide-gray-200">

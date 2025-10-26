@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CartController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -11,6 +13,7 @@ Route::get('/user', function (Request $request) {
 
 // route to add a new product
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::post('/products ', [ProductController::class, 'store']);
 
 
@@ -30,3 +33,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin/dashboard', funct
         'user' => $request->user(),
     ]);
 });
+
+
+
+Route::post('/contact', [ContactController::class, 'store']);
+
+// Cart routes
+Route::get('/cart', [CartController::class, 'index']);
+Route::post('/cart', [CartController::class, 'store']);
+Route::put('/cart/{id}', [CartController::class, 'update']);
+Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+Route::post('/cart/clear', [CartController::class, 'clear']);

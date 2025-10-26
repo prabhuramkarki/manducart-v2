@@ -1,6 +1,80 @@
 <template>
   <div>
+    <!-- NavBar -->
     <NavBar />
+
+    <!-- Carousel -->
+    <!-- <Carousel/> -->
+
+    <!-- Featured Section -->
+    <!-- <section>
+      <h1 class="text-xl font-bold text-center my-6">Featured Products</h1>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-6">
+        <div v-for="item in featured" :key="item.title" class="relative group">
+          <h5 class="absolute top-2 left-2 text-white px-3 py-1 rounded bg-gradient-to-r from-blue-600 to-green-400">
+            {{ item.title }}
+          </h5>
+          <img :src="`/images/${item.image}`" class="rounded-lg shadow-lg w-full h-60 object-cover" />
+
+          <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+            <button @click="seeMore(item.link)"
+              class="bg-white text-black px-3 py-2 rounded flex items-center gap-2">
+              <i class="fa-solid fa-circle-chevron-down"></i> See More
+            </button>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <!-- Product List -->
+    <!-- <section>
+      <h1 class="text-xl font-bold text-center my-6">View More Products</h1>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-6">
+        <div v-for="product in products" :key="product.product_id" class="border rounded-lg overflow-hidden shadow-lg">
+          <a :href="`/productdetail/${product.product_id}`">
+            <img :src="`/images/${product.product_image}`" class="w-full h-60 object-cover" />
+          </a>
+
+          <div class="p-3">
+            <div class="flex justify-between">
+              <button @click="addWishlist(product.product_id)" class="text-gray-500 hover:text-red-500">
+                <i class="fa-regular fa-heart"></i>
+              </button>
+              <div class="flex gap-2">
+                <button @click="buyNow(product.product_id)" class="text-blue-600">
+                  <i class="fa-solid fa-bag-shopping"></i>
+                </button>
+                <button @click="addCart(product.product_id)" class="text-green-600">
+                  <i class="fa-solid fa-cart-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mt-3">
+              <p>CATEGORY: {{ product.category }}</p>
+              <p>SIZE: {{ product.size }}</p>
+              <h2 class="font-bold">{{ product.product_name }}</h2>
+              <h2 class="text-red-500">Rs. {{ product.product_price }}</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-6">
+        <button @click="goToShop" class="bg-blue-500 text-white px-4 py-2 rounded">See More</button>
+      </div>
+    </section> -->
+
+    <!-- Bottom Banner -->
+    <!-- <section class="text-center my-12 bg-gray-100 py-10">
+      <p class="text-lg">New Arrival's <span class="text-red-600 font-bold">50% Off</span></p>
+      <h2 class="text-2xl font-semibold">
+        Men's & Women's <span class="text-sky-500">Collection</span>
+      </h2>
+      <a href="/shop">
+        <p class="bg-red-600 inline-block mt-4 px-4 py-2 text-white rounded">Order Now</p>
+      </a>
+    </section> -->
+
     <div class="min-h-screen bg-gray-50 font-[Montserrat]">
       <HeroSection />
       
@@ -35,9 +109,8 @@ import 'vue3-toastify/dist/index.css';
 import NavBar from "../components/layouts/NavBar.vue";
 import ProductCard from "../components/ProductCard.vue";
 import HeroSection from "../components/HeroSection.vue";
-import { useApiStore } from "../store/api";
+import Carousel from "../components/Carousel.vue";
 
-const api = useApiStore().api;
 const router = useRouter();
 
 const products = ref([]);
@@ -57,7 +130,7 @@ const featured = ref([
 const fetchProducts = async () => {
   try {
     isLoading.value = true;
-    const res = await api.get("/products/random?limit=4");
+    const res = await axios.get("http://127.0.0.1:8000/api/products/random?limit=4");
     products.value = res.data.data || [];
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -104,6 +177,8 @@ const handleAddToWishlist = async (product) => {
   }
 };
 
+// Old functions (keeping for reference, can be removed later)
+// Old navigation functions (keeping for reference, can be removed if not used)
 const seeMore = (link) => {
   router.push(link);
 };

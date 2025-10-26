@@ -19,33 +19,29 @@
           
           <div class="w-full mt-4">
             <img 
+              v-if="mainImage"
               :src="mainImage" 
-              alt="The Minimalist Tote in selected color" 
+              :alt="product.product_name" 
               class="w-full object-cover aspect-square rounded-lg shadow-md"
             />
-          </div>
-
-          <div class="mt-6 w-full">
-            <div class="flex space-x-3 overflow-x-auto">
-              <img 
-                v-for="(image, index) in product.images" 
-                :key="index"
-                :src="image.src" 
-                :alt="image.alt"
-                @click="mainImage = image.src"
-                :class="[
-                  'w-20 h-20 object-cover rounded-md cursor-pointer ring-2 transition duration-200',
-                  mainImage === image.src ? 'ring-yellow-500 ring-offset-2' : 'ring-transparent hover:ring-gray-300'
-                ]"
-              />
+            <div v-else class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+              <p class="text-gray-400">No image available</p>
             </div>
           </div>
         </div>
 
         <div class="mt-10 lg:mt-0 lg:sticky lg:top-8">
+          <div v-if="loading" class="text-center py-10">
+            <p class="text-gray-500">Loading product details...</p>
+          </div>
           
-          <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">{{ product.name }}</h1>
-          <p class="mt-4 text-3xl text-gray-900 font-light">${{ product.price.toFixed(2) }}</p>
+          <div v-else-if="error" class="text-center py-10">
+            <p class="text-red-500">{{ error }}</p>
+          </div>
+          
+          <div v-else>
+          <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">{{ product.product_name }}</h1>
+          <p class="mt-4 text-3xl text-gray-900 font-light">Rs. {{ product.product_price }}</p>
 
           <div class="mt-3 flex items-center">
             <div class="flex items-center text-yellow-500">
@@ -55,49 +51,46 @@
               <i class="fas fa-star text-sm"></i>
               <i class="fas fa-star-half-alt text-sm"></i>
             </div>
-            <p class="ml-2 text-sm text-gray-500">{{ product.rating.count }} reviews</p>
+            <p class="ml-2 text-sm text-gray-500">Rating: {{ product.rating }}/5</p>
           </div>
 
           <div class="mt-6">
             <h3 class="text-lg font-medium text-gray-900">Details</h3>
-            <p class="text-base text-gray-500 mt-2">{{ product.description }}</p>
+            <p class="text-base text-gray-500 mt-2">{{ product.product_details }}</p>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <p class="text-sm text-gray-700"><span class="font-semibold">Category:</span> {{ product.category.product_category }}</p>
+            <p class="text-sm text-gray-700"><span class="font-semibold">Color:</span> {{ product.category.product_color }}</p>
+            <p class="text-sm text-gray-700"><span class="font-semibold">Size:</span> {{ product.category.product_size }}</p>
+            <p class="text-sm text-gray-700"><span class="font-semibold">Stock:</span> {{ product.product_quantity }} available</p>
           </div>
           
           <form class="mt-6">
             
-            <div>
-              <h3 class="text-sm font-medium text-gray-900">Color: <span class="font-semibold">{{ selectedColor.name }}</span></h3>
-              <div class="mt-4 flex items-center space-x-3">
-                <button 
-                  v-for="color in product.colors" 
-                  :key="color.name" 
-                  type="button" 
-                  @click="selectColor(color)"
-                  :class="[
-                    color.class,
-                    'p-1 rounded-full ring-2 transition duration-200',
-                    selectedColor.name === color.name ? 'ring-offset-2 ring-yellow-500' : 'ring-transparent hover:ring-gray-300'
-                  ]"
-                >
-                  <span :class="['w-8 h-8 rounded-full block', color.class]"></span>
-                </button>
-              </div>
-            </div>
-
             <div class="mt-8">
-              <h3 class="text-sm font-medium text-gray-900">Size</h3>
+              <h3 class="text-sm font-medium text-gray-900">Quantity</h3>
               <div class="mt-4 flex items-center space-x-3">
                 <button 
-                  v-for="size in product.sizes" 
-                  :key="size" 
-                  type="button" 
-                  @click="selectedSize = size"
-                  :class="[
-                    'px-4 py-2 border rounded-md text-sm font-medium transition duration-200',
-                    selectedSize === size ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  ]"
+                  type="button"
+                  @click="quantity = Math.max(1, quantity - 1)"
+                  class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                 >
-                  {{ size }}
+                  <i class="fas fa-minus text-sm"></i>
+                </button>
+                <input 
+                  v-model.number="quantity" 
+                  type="number" 
+                  min="1" 
+                  :max="product.product_quantity"
+                  class="w-20 text-center border border-gray-300 rounded-md py-2"
+                />
+                <button 
+                  type="button"
+                  @click="quantity = Math.min(product.product_quantity, quantity + 1)"
+                  class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  <i class="fas fa-plus text-sm"></i>
                 </button>
               </div>
             </div>
@@ -131,7 +124,7 @@
               </div>
             </details>
           </div>
-
+          </div>
         </div>
       </div>
     </div>
@@ -140,51 +133,75 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import NavBar from '../components/layouts/NavBar.vue'
+import { ref, reactive, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import axios from 'axios';
+import NavBar from '../components/layouts/NavBar.vue';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+import { useCart } from '../composables/useCart';
 
-// --- Product Data Simulation ---
+const { addToCart: addToCartGlobal } = useCart();
+
+const route = useRoute();
+const loading = ref(true);
+const error = ref(null);
+
+// --- Product Data ---
 const product = reactive({
-  id: 1,
-  name: 'The Minimalist Tote',
-  price: 299.00,
-  description: "Crafted for simplicity and function, this is the only bag you'll ever need. Features a padded laptop sleeve, interior zip pocket, and magnetic snap closure. Made with ethically sourced Italian leather.",
-  rating: { value: 4.5, count: 156 },
-  sizes: ['Small', 'Medium', 'Large'],
-  colors: [
-    { name: 'Black', src: 'https://via.placeholder.com/600x600/1f2937/FFFFFF?text=Black+Tote', class: 'bg-gray-900' },
-    { name: 'Tan', src: 'https://via.placeholder.com/600x600/b49877/FFFFFF?text=Tan+Tote', class: 'bg-amber-700' },
-    { name: 'Clay', src: 'https://via.placeholder.com/600x600/9ca3af/FFFFFF?text=Clay+Tote', class: 'bg-gray-400' },
-  ],
-  images: [
-    { src: 'https://via.placeholder.com/600x600/1f2937/FFFFFF?text=Black+Tote', alt: 'Black Tote Front' },
-    { src: 'https://via.placeholder.com/600x600/b49877/FFFFFF?text=Tan+Tote', alt: 'Tan Tote Side' },
-    { src: 'https://via.placeholder.com/600x600/9ca3af/FFFFFF?text=Clay+Tote', alt: 'Clay Tote Detail' },
-    { src: 'https://via.placeholder.com/600x600/374151/FFFFFF?text=Interior+View', alt: 'Tote Interior' },
-  ]
+  product_id: null,
+  product_name: '',
+  product_price: 0,
+  product_details: '',
+  product_image: '',
+  product_quantity: 0,
+  rating: 0,
+  category: {
+    product_category: '',
+    product_color: '',
+    product_size: ''
+  }
 });
 
 // --- State Management ---
-const selectedColor = ref(product.colors[0]);
-const selectedSize = ref(product.sizes[1]);
-const mainImage = ref(product.images[0].src);
+const selectedSize = ref('Medium');
+const mainImage = ref('');
+const quantity = ref(1);
 
-// --- Methods ---
-const selectColor = (color) => {
-  selectedColor.value = color;
-  // Update the main image to reflect the selected color
-  const newImage = product.images.find(img => img.alt.includes(color.name)) || color.src;
-  mainImage.value = newImage.src || color.src;
+// Fetch product data from API
+const fetchProduct = async () => {
+  try {
+    loading.value = true;
+    const response = await axios.get(`http://127.0.0.1:8000/api/products/${route.params.id}`);
+    const data = response.data.data;
+    
+    // Update product reactive object
+    Object.assign(product, data);
+    mainImage.value = `http://127.0.0.1:8000/${data.product_image}`;
+    loading.value = false;
+  } catch (err) {
+    console.error('Error fetching product:', err);
+    error.value = 'Failed to load product details';
+    loading.value = false;
+    toast.error('Failed to load product details');
+  }
 };
 
-const addToCart = () => {
-  console.log('Adding to cart:', {
-    product: product.name,
-    color: selectedColor.value.name,
-    size: selectedSize.value,
-    qty: 1
-  });
-  alert(`${selectedColor.value.name} ${product.name} (${selectedSize.value}) added to cart!`);
+onMounted(() => {
+  fetchProduct();
+});
+
+// --- Methods ---
+const addToCart = async () => {
+  try {
+    await addToCartGlobal(product.product_id, quantity.value);
+    toast.success(`${product.product_name} added to cart!`);
+    // Reset quantity after adding
+    quantity.value = 1;
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    toast.error('Failed to add to cart');
+  }
 };
 </script>
 

@@ -130,4 +130,22 @@ class ProductController extends Controller
             'data' => $products,
         ], 200);
     }
+
+    // Method for API - Get single product by ID
+    public function show($id)
+    {
+        try {
+            $product = Product::with('category')->findOrFail($id);
+
+            return response()->json([
+                'message' => 'Product retrieved successfully',
+                'data' => $product,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Product not found',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
 }

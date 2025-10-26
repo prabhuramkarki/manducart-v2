@@ -7,7 +7,14 @@
     <div class="flex items-center space-x-2 select-none">
       <RouterLink to="/" class="flex items-center space-x-1">
         <img
+          v-if="role !== 'admin'"
           src="../../assets/svgs/manducart-logo.svg"
+          alt="Manducart Logo"
+          class="h-auto object-contain"
+        />
+        <img
+          v-else
+          src="../../assets/svgs/manducart-admin-logo.svg"
           alt="Manducart Logo"
           class="h-auto object-contain"
         />
@@ -32,6 +39,7 @@
     <!-- Hamburger / Close Button (Visible on mobile + tablet) -->
     <button
       @click="toggleMenu"
+      
       class="lg:hidden text-black hover:text-red-500 transition-colors duration-300"
       aria-label="Toggle menu"
     >
@@ -79,22 +87,22 @@
     <div class="hidden lg:flex items-center space-x-4">
       <RouterLink to="/search">
         <i
-          class="fa-solid fa-magnifying-glass text-black hover:text-red-500 cursor-pointer transition-colors duration-300"
+          class="fa-solid fa-magnifying-glass text-black cursor-pointer transition-colors duration-300"
         ></i>
       </RouterLink>
 
       <RouterLink to="/wishlist">
         <i
-          class="fa-solid fa-heart text-black hover:text-red-500 cursor-pointer transition-colors duration-300"
+          class="fa-solid fa-heart text-black  cursor-pointer transition-colors duration-300"
         ></i>
       </RouterLink>
 
       <RouterLink to="/cart" class="relative">
         <i
-          class="fa-solid fa-cart-shopping text-black cursor-pointer transition-transform duration-500 hover:scale-125"
+          class="fa-solid fa-cart-shopping text-black cursor-pointer transition-transform duration-500"
         ></i>
         <span
-          class="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] w-[18px] h-[18px] rounded-full flex items-center justify-center"
+          class="absolute -top-2 -right-3 bg-red-500 text-white font-bold text-[10px] w-[18px] h-[18px] rounded-full flex items-center justify-center"
         >
           {{ cartCount }}
         </span>
@@ -102,33 +110,33 @@
 
       <RouterLink to="/login">
         <i
-          class="fa-solid fa-user text-black hover:text-red-500 cursor-pointer transition-colors duration-300"
+          class="fa-solid fa-user text-black  cursor-pointer transition-colors duration-300"
         ></i>
       </RouterLink>
     </div>
 
     <!-- Mobile & Tablet Bottom Icons -->
     <div
-      class="lg:hidden fixed bottom-0 left-0 w-full bg-gray-200 py-4 px-[10%] flex justify-around items-center z-50 shadow-lg border-t border-gray-300"
+      class="lg:hidden fixed bottom-0 left-0 w-full bg-white py-4 px-[10%] flex justify-around items-center z-50 shadow-lg border-t border-gray-300"
     >
       <RouterLink to="/search" @click="closeMenu">
         <i
-          class="fa-solid fa-magnifying-glass text-black hover:text-red-500 cursor-pointer transition-colors duration-300 text-xl"
+          class="fa-solid fa-magnifying-glass text-black cursor-pointer transition-colors duration-300 text-xl"
         ></i>
       </RouterLink>
 
       <RouterLink to="/wishlist" @click="closeMenu">
         <i
-          class="fa-solid fa-heart text-black hover:text-red-500 cursor-pointer transition-colors duration-300 text-xl"
+          class="fa-solid fa-heart text-black  cursor-pointer transition-colors duration-300 text-xl"
         ></i>
       </RouterLink>
 
       <RouterLink to="/cart" class="relative" @click="closeMenu">
         <i
-          class="fa-solid fa-cart-shopping text-black cursor-pointer transition-transform duration-300 hover:scale-125 text-xl"
+          class="fa-solid fa-cart-shopping text-black cursor-pointer transition-transform duration-300 text-xl"
         ></i>
         <span
-          class="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] w-[18px] h-[18px] rounded-full flex items-center justify-center"
+          class="absolute -top-2 -right-3 bg-red-500 text-white font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center"
         >
           {{ cartCount }}
         </span>
@@ -136,7 +144,7 @@
 
       <RouterLink to="/login" @click="closeMenu">
         <i
-          class="fa-solid fa-user text-black hover:text-red-500 cursor-pointer transition-colors duration-300 text-xl"
+          class="fa-solid fa-user text-black cursor-pointer transition-colors duration-300 text-xl"
         ></i>
       </RouterLink>
     </div>
@@ -144,12 +152,23 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useCart } from '../../composables/useCart'
+import { useAuthStore } from '../../store/auth'
 
 const route = useRoute()
+const authStore = useAuthStore()
+const role = computed(() => authStore.role)
 const isMenuOpen = ref(false)
-const cartCount = ref(2)
+
+// Use global cart composable
+const { cartCount, fetchCartCount } = useCart()
+
+// Fetch cart count on component mount
+onMounted(() => {
+  fetchCartCount()
+})
 
 const navLinks = ref([
   { label: 'Home', path: '/' },
@@ -171,8 +190,14 @@ const closeMenu = () => {
 
 const isActive = (path) => route.path === path
 
+// Close menu when route changes
 watch(() => route.path, () => {
   closeMenu()
+})
+
+// Expose fetchCartCount for external use (optional)
+defineExpose({
+  fetchCartCount
 })
 </script>
 

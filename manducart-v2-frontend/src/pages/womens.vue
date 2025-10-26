@@ -29,7 +29,7 @@
           </button>
 
           <!-- Product Image -->
-          <a :href="`/productdetail/${product.product_id}`" class="block">
+          <RouterLink :to="`/product/${product.product_id}`" class="block">
             <div class="overflow-hidden">
               <img
                 :src="`http://127.0.0.1:8000/${product.product_image}`"
@@ -37,7 +37,7 @@
                 class="w-full h-64 object-cover transform hover:scale-110 transition duration-700"
               />
             </div>
-          </a>
+          </RouterLink>
 
           <!-- Product Details -->
           <div class="p-4 space-y-2 flex flex-col flex-grow">
@@ -56,14 +56,14 @@
             <div class="flex justify-between items-center mt-auto pt-3 gap-2">
               <button
                 @click="buyNow(product)"
-                class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex-1 cursor-pointer"
+                class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-gray-600 ease-in-out duration-300 text-white px-3 py-2 rounded-lg text-sm font-medium flex-1 cursor-pointer"
               >
                 <i class="fa-solid fa-bag-shopping"></i> Buy Now
               </button>
 
               <button
                 @click="addToCart(product)"
-                class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex-1 cursor-pointer"
+                class="flex items-center justify-center gap-2 bg-red-500 hover:bg-gray-600 ease-in-out duration-300 text-white px-3 py-2 rounded-lg text-sm font-medium flex-1 cursor-pointer"
               >
                 <i class="fa-solid fa-cart-plus"></i> Add
               </button>
@@ -87,6 +87,9 @@ import axios from "axios";
 import NavBar from "../components/layouts/NavBar.vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import { useCart } from "../composables/useCart";
+
+const { addToCart: addToCartGlobal } = useCart();
 
 // State
 const products = ref([]);
@@ -109,8 +112,14 @@ const addToWishlist = (product) => {
 };
 
 // Add to cart
-const addToCart = (product) => {
-    toast.success(`Added ${product.product_name} to cart`, { autoClose: 2000 });
+const addToCart = async (product) => {
+    try {
+        await addToCartGlobal(product.product_id, 1);
+        toast.success(`Added ${product.product_name} to cart`, { autoClose: 2000 });
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        toast.error('Failed to add to cart', { autoClose: 2000 });
+    }
 };
 
 // Buy now

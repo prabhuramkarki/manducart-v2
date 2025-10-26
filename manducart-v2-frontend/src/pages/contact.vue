@@ -37,13 +37,17 @@
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               <input 
-                v-model="form.fullname" 
+                v-model="formData.fullname" 
                 type="text" 
                 placeholder="Enter Your Name" 
-                class="w-full p-3 pl-10 border-2 border-gray-200 rounded-lg text-base focus:border-yellow-500 focus:ring-yellow-500 transition duration-300" 
-                required
+                @blur="validateFullname"
+                :class="[
+                  'w-full p-3 pl-10 border-2 rounded-lg text-base transition duration-300',
+                  errors.fullname ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-yellow-500 focus:ring-yellow-500'
+                ]"
               />
             </div>
+            <p v-if="errors.fullname" class="text-red-500 text-sm mt-1">{{ errors.fullname }}</p>
           </div>
 
           <div class="mb-5 text-left">
@@ -51,13 +55,17 @@
             <div class="relative">
               <i class="fa-solid fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               <input 
-                v-model="form.email" 
+                v-model="formData.email" 
                 type="email" 
                 placeholder="Enter Your Email" 
-                class="w-full p-3 pl-10 border-2 border-gray-200 rounded-lg text-base focus:border-yellow-500 focus:ring-yellow-500 transition duration-300" 
-                required
+                @blur="validateEmail"
+                :class="[
+                  'w-full p-3 pl-10 border-2 rounded-lg text-base transition duration-300',
+                  errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-yellow-500 focus:ring-yellow-500'
+                ]"
               />
             </div>
+            <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
           </div>
 
           <div class="mb-5 text-left">
@@ -65,7 +73,7 @@
             <div class="relative">
               <i class="fa-solid fa-question absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               <select 
-                v-model="form.issue" 
+                v-model="formData.issue" 
                 class="w-full p-3 pl-10 border-2 border-gray-200 rounded-lg text-base appearance-none focus:border-yellow-500 focus:ring-yellow-500 transition duration-300 bg-white"
               >
                 <option value="Payment Problems">Payment Problems</option>
@@ -85,13 +93,17 @@
             <div class="relative">
               <i class="fa-solid fa-message absolute left-3 top-5 text-gray-400"></i>
               <textarea 
-                v-model="form.message" 
+                v-model="formData.message" 
                 placeholder="Let us know what you need help with..." 
                 rows="5" 
-                class="w-full p-3 pl-10 border-2 border-gray-200 rounded-lg text-base focus:border-yellow-500 focus:ring-yellow-500 transition duration-300 resize-none" 
-                required
+                @blur="validateMessage"
+                :class="[
+                  'w-full p-3 pl-10 border-2 rounded-lg text-base transition duration-300 resize-none',
+                  errors.message ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-yellow-500 focus:ring-yellow-500'
+                ]"
               ></textarea>
             </div>
+            <p v-if="errors.message" class="text-red-500 text-sm mt-1">{{ errors.message }}</p>
           </div>
 
           <button 
@@ -110,33 +122,96 @@
 
 <script setup>
 import { reactive } from 'vue'
+import axios from 'axios'
 import NavBar from '../components/layouts/NavBar.vue'
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 // Reactive form object
-const form = reactive({
+const formData = reactive({
   fullname: '',
   email: '',
   issue: 'Payment Problems',
   message: ''
 })
 
+// Reactive errors object
+const errors = reactive({
+  fullname: '',
+  email: '',
+  message: ''
+})
+
+// Validation functions
+function validateFullname() {
+  if (!formData.fullname.trim()) {
+    errors.fullname = 'Full name is required'
+    return false
+  }
+  if (formData.fullname.trim().length < 2) {
+    errors.fullname = 'Name must be at least 2 characters'
+    return false
+  }
+  errors.fullname = ''
+  return true
+}
+
+function validateEmail() {
+  if (!formData.email.trim()) {
+    errors.email = 'Email is required'
+    return false
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(formData.email)) {
+    errors.email = 'Please enter a valid email address'
+    return false
+  }
+  errors.email = ''
+  return true
+}
+
+function validateMessage() {
+  if (!formData.message.trim()) {
+    errors.message = 'Message is required'
+    return false
+  }
+  if (formData.message.trim().length < 10) {
+    errors.message = 'Message must be at least 10 characters'
+    return false
+  }
+  errors.message = ''
+  return true
+}
+
 // Form submit handler
-function handleSubmit() {
-  console.log('Form submitted:', form)
-  alert('Message sent successfully!')
-  // Reset form
-  form.fullname = ''
-  form.email = ''
-  form.issue = 'Payment Problems'
-  form.message = ''
+async function handleSubmit() {
+  // Validate all fields
+  const isFullnameValid = validateFullname()
+  const isEmailValid = validateEmail()
+  const isMessageValid = validateMessage()
+
+  if (!isFullnameValid || !isEmailValid || !isMessageValid) {
+    toast.error('Please fill all the required fields')
+    return
+  }
+
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/contact', formData)
+    toast.success('Message sent successfully!')
+    
+    // Reset form
+    formData.fullname = ''
+    formData.email = ''
+    formData.issue = 'Payment Problems'
+    formData.message = ''
+    
+    // Clear errors
+    errors.fullname = ''
+    errors.email = ''
+    errors.message = ''
+  } catch (error) {
+    console.error('Error submitting form:', error)
+    toast.error('Failed to send message')
+  }
 }
 </script>
-
-<style>
-/* You'll need to link Font Awesome for the icons (fa-...) and potentially the Montserrat font */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
-body {
-  font-family: 'Montserrat', sans-serif;
-}
-</style>
