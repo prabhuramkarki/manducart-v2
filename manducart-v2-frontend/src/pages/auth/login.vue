@@ -60,6 +60,7 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import api from "@/services/api";
 
 const router = useRouter();
 
@@ -72,7 +73,7 @@ async function validateForm() {
     }
 
     try {
-        const response = await axios.post("http://127.0.0.1:8000/api/login", {
+        const response = await api.post("/login", {
             email: email.value.trim(),
             password: password.value.trim(),
         });

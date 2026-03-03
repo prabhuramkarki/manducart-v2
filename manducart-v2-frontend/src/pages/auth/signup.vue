@@ -97,9 +97,9 @@
 
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import api from "@/services/api";
 
 const fullname = ref("");
 const email = ref("");
@@ -123,7 +123,7 @@ async function validateForm() {
   }
 
   try {
-    const response = await axios.post("http://127.0.0.1:8000/api/signup", {
+    const response = await api.post("/signup", {
       fullname: fullname.value,
       email: email.value,
       password: password.value,

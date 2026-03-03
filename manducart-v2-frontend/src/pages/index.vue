@@ -35,9 +35,10 @@ import 'vue3-toastify/dist/index.css';
 import NavBar from "../components/layouts/NavBar.vue";
 import ProductCard from "../components/ProductCard.vue";
 import HeroSection from "../components/HeroSection.vue";
-import { useApiStore } from "../store/api";
+import api from "@/services/api";
+// import { useApiStore } from "../store/api";
 
-const api = useApiStore().api;
+// const api = useApiStore().api;
 const router = useRouter();
 
 const products = ref([]);
@@ -76,7 +77,7 @@ const fetchFeatured = async () => {
 // Add to cart
 const addToCart = async (product) => {
   try {
-    await axios.post("/api/cart", { product_id: product.product_id });
+    await api.post("/cart", { product_id: product.product_id });
     toast.success(`Added ${product.product_name} to cart`, { autoClose: 2000 });
   } catch (err) {
     console.error('Error adding to cart:', err);
@@ -96,7 +97,7 @@ const handleBuyNow = (product) => {
 
 const handleAddToWishlist = async (product) => {
   try {
-    await axios.post("/api/wishlist", { product_id: product.product_id });
+    await api.post("/wishlist", { product_id: product.product_id });
     toast.success('Wishlist updated', { autoClose: 2000 });
   } catch (err) {
     console.error('Error updating wishlist:', err);
