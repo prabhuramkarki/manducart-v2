@@ -1,5 +1,36 @@
-# Vue 3 + TypeScript + Vite
+# Manducart V2 storefront
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+The standalone Manducart storefront uses Vue 3, TypeScript, Vue Router, Pinia, Axios, Tailwind CSS 4, and Vite 7.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+See the [root README](../README.md) for Laravel setup, API routes, environment variables, and current implementation gaps.
+
+## Run locally
+
+Use Node.js 20.19+ within 20.x, or 22.12+, and npm. Start the Laravel API on `127.0.0.1:8000`, then run from this directory:
+
+```bash
+npm install
+```
+
+Create `.env.local`:
+
+```dotenv
+VITE_API_URL=http://127.0.0.1:8000/api
+VITE_PUBLIC_API_URL=http://127.0.0.1:8000/api
+```
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Restart Vite after environment changes. Several components also hardcode the backend URL, so environment variables do not yet control every request. The current lockfile is out of sync with the dependency manifest; use `npm install` for initial setup.
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start Vite on localhost port 3000 |
+| `npm run build` | Run `vue-tsc -b` and build with Vite |
+| `npm run preview` | Preview a production build locally |
+
+No frontend test or lint script is configured. Search, wishlist, checkout, authentication, and cart limitations are documented in the root README.
